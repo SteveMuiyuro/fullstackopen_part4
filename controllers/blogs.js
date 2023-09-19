@@ -1,5 +1,4 @@
 const blogsRouter = require("express").Router();
-const { ModuleResolutionKind } = require("typescript");
 const Blog = require("../models/blog");
 
 blogsRouter.get("/", (req, res) => {
