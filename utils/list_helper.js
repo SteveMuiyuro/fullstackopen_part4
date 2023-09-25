@@ -1,68 +1,50 @@
-const dummy = (blogs) => {
-  return 1;
-};
+const dummy = (_blogs) => 1;
 
-const totalLikes = (blogs) => {
-  let total = 0;
-  blogs.forEach((element) => {
-    total += element.likes;
-  });
+const favoriteBlog = (blogs) =>
+  blogs.length
+    ? blogs.reduce((favorite, current) =>
+        current.likes > favorite.likes ? current : favorite
+      )
+    : null;
 
-  return total;
-};
+const mostBase = (type, blogs, callback) => {
+  if (!blogs.length) return null;
 
-const favouriteBlog = (blogs) => {
-  let maxLikes = 0;
+  let counts = {};
 
-  blogs.forEach((element) => {
-    if (element.likes > maxLikes) {
-      maxLikes = element.likes;
-    }
-  });
+  blogs.forEach((blog) => callback(blog, counts));
 
-  return maxLikes;
-};
-
-const mostBlogs = (array) => {
-  const countAuthors = {};
-  const arrayOfAuthors = array.map((element) => element.author);
-
-  arrayOfAuthors.forEach(
-    (el) => (countAuthors[el] = (countAuthors[el] || 0) + 1)
+  const highestCount = Object.entries(counts).reduce((selected, current) =>
+    current[1] > selected[1] ? current : selected
   );
 
-  const values = Object.values(countAuthors);
-  const maxValue = Math.max(...values);
-
-  function newObj() {
-    for (const property in countAuthors) {
-      if (countAuthors[property] === maxValue)
-        return { author: property, blogs: countAuthors[property] };
-    }
-  }
-
-  return newObj();
-};
-
-const mostLikes = (blogs) => {
-  let authors = blogs.map((blog) => blog.author);
-  authors = [...new Set(authors)];
-
-  let total = new Array(authors.length).fill(0);
-  blogs.map((blog) => (total[authors.indexOf(blog.author)] += blog.likes));
-
-  let index = total.indexOf(Math.max(...total));
-
   return {
-    author: authors[index],
-    likes: total[index],
+    author: highestCount[0],
+    [type]: highestCount[1],
   };
 };
 
+const mostBlogs = (blogs) =>
+  mostBase(
+    "blogs",
+    blogs,
+    (blog, counts) => (counts[blog.author] = (counts[blog.author] ?? 0) + 1)
+  );
+
+const mostLikes = (blogs) =>
+  mostBase(
+    "likes",
+    blogs,
+    (blog, counts) =>
+      (counts[blog.author] = (counts[blog.author] ?? 0) + blog.likes)
+  );
+
+const totalLikes = (blogs) => blogs.reduce((sum, blog) => sum + blog.likes, 0);
+
 module.exports = {
   dummy,
-  totalLikes,
-  favouriteBlog,
+  favoriteBlog,
   mostBlogs,
   mostLikes,
+  totalLikes,
 };
